@@ -11,7 +11,7 @@
 
 // Control Pins
 #define TFT_CS   5
-#define TFT_DC   2
+#define TFT_DC   27     //UPdated from GPIO2 to GPIO27 for EP3
 #define TFT_RST  4
 
 // SPI Frequency
