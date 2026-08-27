@@ -33,5 +33,5 @@
  ***************************************************/
 #define WIFI_SCAN_INTERVAL  10000
 #define MAX_VISIBLE_NETWORKS 9
-
+#define MAX_VISIBLE_BLE_DEVICES 9
 #endif

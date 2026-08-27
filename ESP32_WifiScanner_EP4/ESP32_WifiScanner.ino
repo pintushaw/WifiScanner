@@ -1,18 +1,36 @@
 /*
   ------------------------------------------------------------
   Project : ESP32 Portable Wi-Fi Scanner
-  Episode : 3 - TFT Wi-Fi Scanner Dashboard
+  Episode : 4 - TFT Wi-Fi Scanner Dashboard
   Author  : DigitalLab.org
   ------------------------------------------------------------
 */
 
 #include <WiFi.h>
 
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEScan.h>
+#include <BLEAdvertisedDevice.h>
+
 #include "Config.h"
 #include "DisplayManager.h"
+#include "TouchManager.h"
 
+
+TouchManager touch;
 DisplayManager display;
+BLEScan* pBLEScan;
 
+#define BLE_SCAN_TIME 5
+enum Screen
+{
+    SCREEN_HOME,
+    SCREEN_WIFI,
+    SCREEN_BLE
+};
+
+Screen currentScreen = SCREEN_HOME;
 void scanNetworks();
 String getEncryptionType(wifi_auth_mode_t encryption);
 
@@ -25,7 +43,7 @@ void setup()
     Serial.println();
     Serial.println("--------------------------------------------");
     Serial.println("ESP32 Portable Wi-Fi Scanner");
-    Serial.println("Episode 3");
+    Serial.println("Episode 4");
     Serial.println("--------------------------------------------");
 
     // Put ESP32 in Station mode
@@ -40,6 +58,16 @@ void setup()
     display.begin();
 
     display.drawDashboard();
+    
+    // Initialize BLE
+    BLEDevice::init("");
+    pBLEScan = BLEDevice::getScan();
+
+    pBLEScan->setActiveScan(true);
+    pBLEScan->setInterval(100);
+    pBLEScan->setWindow(99);
+
+    Serial.println("BLE Scanner Initialized");
 }
 
 void loop()
@@ -47,6 +75,7 @@ void loop()
     Serial.println("Loop Started");
     scanNetworks();
     Serial.println("Scan Finished");
+    scanBLE();
     delay(WIFI_SCAN_INTERVAL);
 }
 
@@ -56,7 +85,7 @@ void loop()
 void scanNetworks1()
 {
     display.clearNetworkArea();
-
+    display.drawColumnHeader();
     int numberOfNetworks = WiFi.scanNetworks();
 
     display.drawFooter(numberOfNetworks);
@@ -130,13 +159,13 @@ void scanNetworks2()
 {
     display.clearNetworkArea();
 
-    display.drawNetwork(
-        0,
-        "DigitalLab",
-        -42,
-        11,
-        "WPA2");
-
+    // display.drawNetwork(
+    //     0,
+    //     "DigitalLab",
+    //     -42,
+    //     11,
+    //     "WPA2");
+   // display.drawMode("Wi-Fi");
     display.drawFooter(1);
 }
 
@@ -147,10 +176,14 @@ void scanNetworks()
     int numberOfNetworks = WiFi.scanNetworks(false, true);
 
     display.clearNetworkArea();
+    display.drawHeader("Wi-Fi");
+    display.drawColumnHeader();
+
     Serial.println("A");
     display.drawFooter(numberOfNetworks);
     Serial.print("Networks=");
     Serial.println(numberOfNetworks);
+    
     if (numberOfNetworks <= 0)
         return;
     
@@ -170,4 +203,73 @@ void scanNetworks()
         );
     }
    
+}
+/******************************************************
+ * Scan nearby BLE devices
+ ******************************************************/
+void scanBLE()
+{
+    Serial.println();
+    Serial.println("============================================");
+    Serial.println("Starting BLE Scan...");
+    Serial.println("============================================");
+
+    BLEScanResults* foundDevices =
+        pBLEScan->start(BLE_SCAN_TIME, false);
+
+    int deviceCount = foundDevices->getCount();
+
+    Serial.print("BLE Devices Found : ");
+    Serial.println(deviceCount);
+    display.drawHeader("BLE");
+    display.drawBLEHeader();
+    // Clear previous BLE screen
+    display.clearBLEArea();
+
+    // Draw BLE column header
+    display.drawBLEHeader();
+
+    // Display BLE devices
+    int visibleDevices = min(
+        deviceCount,
+        MAX_VISIBLE_BLE_DEVICES
+    );
+
+    for (int i = 0; i < visibleDevices; i++)
+    {
+        BLEAdvertisedDevice device =
+            foundDevices->getDevice(i);
+
+        String name;
+
+        if (device.haveName())
+        {
+            name = device.getName().c_str();
+        }
+        else
+        {
+            name = "<Unknown>";
+        }
+
+        int rssi = device.getRSSI();
+
+        Serial.print("Device ");
+        Serial.print(i + 1);
+        Serial.print(" : ");
+        Serial.print(name);
+        Serial.print(" | RSSI: ");
+        Serial.println(rssi);
+
+        display.drawBLEDevice(
+            i,
+            name,
+            rssi
+        );
+    }
+
+    display.drawBLEFooter(deviceCount);
+
+    pBLEScan->clearResults();
+
+    Serial.println("BLE Scan Finished");
 }

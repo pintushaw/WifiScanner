@@ -6,12 +6,19 @@
 class DisplayManager
 {
 public:
+    void drawHome();
 
+    void drawWiFiNavigation();
+
+    void drawBLENavigation();
+
+    bool isHomeButtonTouched(int x, int y);
+    
     void begin();
 
     void drawDashboard();
 
-    void drawHeader();
+    void drawHeader(String mode);
 
     void drawColumnHeader();
 
@@ -27,6 +34,18 @@ public:
         String security
     );
     void refreshSPI();
+    void clearBLEArea();
+
+    void drawBLEHeader();
+
+    void drawBLEDevice(
+        int row,
+        String name,
+        int rssi
+    );
+    void drawMode(String mode);
+    void drawBLEFooter(int deviceCount);
+
 private:
 
     TFT_eSPI tft = TFT_eSPI();
