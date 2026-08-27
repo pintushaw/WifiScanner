@@ -1,0 +1,95 @@
+EP5 - Network Scanner - TOUCH Navigation + Improved UI 
+
+ESP32
+  │
+  ├── SPI ───────► TFT Display
+  │
+  └── SPI/Touch ─► Touch Controller
+                         │
+                         ▼
+                    Touch Panel
+
+| TFT Touch Pin | Function          |
+| ------------- | ----------------- |
+| `T_IRQ`       | Touch interrupt   |
+| `T_DO`        | Touch SPI MISO    |
+| `T_DIN`       | Touch SPI MOSI    |
+| `T_CS`        | Touch chip select |
+| `T_CLK`       | Touch SPI clock   |
+
+
+
+Touch Pins - ESP32 Pin
+-----------------------
+
+T_DO  ------  GPIO16
+T_DIN ------  GPIO17
+T_CLK ------  GPIO32
+T_CS  ------  GPIO25
+T_IRQ ------  GPIO26
+
+
+
+
+
+
+
+
+
+
+Target Position
+
+
+
+20                       160                       300
+│                         │                         │
+●                         ●                         ● 20
+
+●                         ●                         ● 120
+
+●                         ●                         ● 220
+
+
+
+
+
+XPT2046 Touch Controller
+        │
+        ├── SPI
+        │   ├── CLK  → GPIO 32
+        │   ├── MISO → GPIO 16
+        │   ├── MOSI → GPIO 17
+        │   └── CS   → GPIO 25
+        │
+        └── IRQ → GPIO 26
+                 │
+                 ▼
+          Touch detection
+                 │
+                 ▼
+          Raw X/Y coordinates
+                 │
+                 ▼
+        2D calibration
+                 │
+                 ▼
+          320 × 240 TFT
+
+
+
+
+
+┌──────────────────────────────────────┐
+│              EP5 MENU                │
+├───────────────┬──────────────────────┤
+│     WiFi      │       BLE            │
+│               │                      │
+├───────────────┼──────────────────────┤
+│     Scan      │      Battery         │
+│               │                      │
+└───────────────┴──────────────────────┘
+
+
+
+
+
