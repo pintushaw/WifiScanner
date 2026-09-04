@@ -1,7 +1,7 @@
 /*
   ------------------------------------------------------------
   Project : ESP32 Portable Wi-Fi Scanner
-  Episode : 3 - TFT Wi-Fi Scanner Dashboard
+  Episode : 6 - TFT Wi-Fi Scanner Dashboard
   Author  : DigitalLab.org
   ------------------------------------------------------------
 */
